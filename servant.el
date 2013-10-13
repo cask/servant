@@ -141,6 +141,7 @@
  (option "-p <port>, --port <port>" "Use port (default: 9191)" servant/port)
  (option "-P <file>, --pid <file>" "File to store PID (default: servant.pid)" servant/pid)
  (option "--debug" "Enable debug information" servant/debug)
+ (option "--index" "Index before running command" servant/index)
 
  (command "init" "Initialize servant" servant/init)
  (command "index" "Build package index" servant/index)
