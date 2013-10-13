@@ -83,6 +83,9 @@
   (message "starting server on port %s using PID %s" servant-port servant-pid-file)
   )
 
+(defun servant-stop ()
+  (elnode-stop servant-port))
+
 (defun servant/index ()
   (message "Indexing... %s" servant-index-file)
   )
@@ -101,7 +104,8 @@
  (command "init" "Initialize servant" servant/init)
  (command "index" "Build package index" servant/index)
  (command "help" "Print usage information" servant/help)
- (command "start" "Start server" servant/start))
+ (command "start" "Start server" servant/start)
+ (command "stop" "Stop server" servant/stop))
 
 (provide 'servant)
 
