@@ -78,6 +78,11 @@
 
   (message "starting server on port %s using PID %s" servant-port servant-pid-file)
   )
+
+(defun servant/index ()
+  (message "Indexing... %s" servant-index-file)
+  )
+
 (commander
  (name "servant")
  (description "Serve ELPA packages")
@@ -89,6 +94,7 @@
  (option "-P <file>, --pid <file>" "File to store PID (default: servant.pid)" servant/pid)
 
  (command "init" "Initialize servant" servant/init)
+ (command "index" "Build package index" servant/index)
  (command "help" "Print usage information" servant/help)
  (command "start" "Start server" servant/start))
 
