@@ -55,7 +55,7 @@
   (f-expand "index" servant-path))
 
 (defconst servant-package-re
-  "\/\\([^/]+\\)-\\(.+\\)\.\\(tar\\|el\\)$")
+  "\/\\([^/]+\\)-\\([^/]+\\)\.\\(tar\\|el\\)$")
 
 (defvar servant-pid-file
   (f-expand "servant.pid" servant-tmp-path))
@@ -122,17 +122,43 @@
 (defun servant--el-package-info (filename)
   (with-temp-buffer
     (insert (f-read filename))
-    (let* ((matches (s-match servant-package-re filename))
-           (info (package-buffer-info))
-           (name (intern (nth 1 matches)))
-           (version (version-to-list (nth 2 matches)))
+    (let* ((info (package-buffer-info))
+           (name (intern (aref info 0)))
+           (version (version-to-list (aref info 3)))
            (requires (aref info 1))
            (description (aref info 2))
-           (format (intern (nth 3 matches))))
+           (format (intern (f-ext filename))))
       (list name version requires description format))))
 
+(defun servant--pkg-package-info (filename)
+  (let ((info (cdr (read (f-read filename)))))
+    (list
+     (intern (nth 0 info))
+     (version-to-list (nth 1 info))
+     (mapcar
+      (lambda (elt)
+        (list (car elt) (version-to-list (cadr elt))))
+      (eval (nth 3 info)))
+     (nth 2 info)
+     (f-ext filename))))
+
 (defun servant--tar-package-info (filename)
-  (error "Tar files not supported yet"))
+  (let* ((matches (s-match servant-package-re filename))
+         (name (nth 1 matches))
+         (version (nth 2 matches))
+         (extract-to (f-expand (concat name "-" version) servant-tmp-path)))
+    (when (f-dir? extract-to)
+      (f-delete extract-to :force))
+    (f-mkdir extract-to)
+    (with-temp-buffer
+      (when (= (call-process (executable-find "tar") nil (current-buffer) nil "-xf" filename "-C" extract-to) 1)
+        (error (buffer-string))))
+    (let ((pkg-file (f-expand (concat name "-pkg.el") extract-to)))
+      (if (f-file? pkg-file)
+          (servant--pkg-package-info pkg-file)
+        (let ((main-file (f-expand (concat name ".el") extract-to)))
+          (when (f-file? main-file)
+            (servant--el-package-info main-file)))))))
 
 (defun servant--root-handler (httpcon)
   (elnode-hostpath-dispatcher httpcon servant-routes))
