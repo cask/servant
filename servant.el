@@ -41,6 +41,21 @@
 
 (defvar servant-port 9191)
 
+(defconst servant-path
+  (f-expand "servant"))
+
+(defconst servant-packages-path
+  (f-expand "packages" servant-path))
+
+(defconst servant-index-file
+  (f-expand "index" servant-path))
+
+(defvar servant-pid-file
+  (f-expand "servant.pid" servant-path))
+
+(defun servant/pid (pid)
+  (setq servant-pid-file pid))
+
 (defun servant/port (port)
   (setq servant-port port))
 
@@ -55,6 +70,7 @@
 
  (option "-h, --help" "Print usage information" servant/help)
  (option "-p <port>, --port <port>" "Use port (default: 9191)" servant/port)
+ (option "-P <file>, --pid <file>" "File to store PID (default: servant.pid)" servant/pid)
 
  (command "help" "Print usage information" servant/help))
 
