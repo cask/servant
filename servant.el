@@ -113,6 +113,13 @@
      'utf-8 servant-index-file)))
 
 (defun servant--package-info (filename)
+  (let ((ext (f-ext filename)))
+    (cond ((equal ext "el")
+           (servant--el-package-info filename))
+          ((equal ext "tar")
+           (servant--tar-package-info filename)))))
+
+(defun servant--el-package-info (filename)
   (with-temp-buffer
     (insert (f-read filename))
     (let* ((matches (s-match servant-package-re filename))
@@ -123,6 +130,9 @@
            (description (aref info 2))
            (format (intern (nth 3 matches))))
       (list name version requires description format))))
+
+(defun servant--tar-package-info (filename)
+  (error "Tar files not supported yet"))
 
 (defun servant--root-handler (httpcon)
   (elnode-hostpath-dispatcher httpcon servant-routes))
