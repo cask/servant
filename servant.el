@@ -1,4 +1,4 @@
-;;; servant.el --- Serve ELPA packages
+;;; servant.el --- ELPA server written in Emacs Lisp
 
 ;; Copyright (C) 2013 Johan Andersson
 
@@ -40,45 +40,58 @@
 (require 'package)
 (require 'commander)
 
-(defvar servant-port 9191)
+(defvar servant-port 9191
+  "Server port.")
 
 (defconst servant-path
-  (f-expand "servant"))
+  (f-expand "servant")
+  "Path to main Servant directory.")
 
 (defconst servant-tmp-path
-  (f-expand "tmp" servant-path))
+  (f-expand "tmp" servant-path)
+  "Path to tmp directory.")
 
 (defconst servant-packages-path
-  (f-expand "packages" servant-path))
+  (f-expand "packages" servant-path)
+  "Path to package directory.")
 
 (defconst servant-index-file
-  (f-expand "index" servant-path))
+  (f-expand "index" servant-path)
+  "Path to index (archive context) file.")
 
 (defconst servant-package-re
-  "\/\\([^/]+\\)-\\([^/]+\\)\.\\(tar\\|el\\)$")
+  "\/\\([^/]+\\)-\\([^/]+\\)\.\\(tar\\|el\\)$"
+  "Regular expression matching a package file name.")
 
 (defvar servant-pid-file
-  (f-expand "servant.pid" servant-tmp-path))
+  (f-expand "servant.pid" servant-tmp-path)
+  "Path to server PID file.")
 
 (defconst servant-routes
   '(("\/packages\/archive-contents$" . servant--archive-handler)
     ("\/packages\/\\(.+\\)-\\(.+\\)\.\\(tar\\|el\\)$" . servant--package-handler)
-    ("\/.*" . servant--default-handler)))
+    ("\/.*" . servant--default-handler))
+  "Server routes.")
 
-(defun servant/pid (pid)
-  (setq servant-pid-file pid))
+(defun servant/pid (pid-file)
+  "Set path to PID file."
+  (setq servant-pid-file pid-file))
 
 (defun servant/port (port)
+  "Set server port."
   (setq servant-port port))
 
 (defun servant/help ()
+  "Show Servant usage information."
   (commander-print-usage-and-exit))
 
 (defun servant/debug ()
+  "Enable debug options."
   (setq debug-on-error t)
   (setq debug-on-entry t))
 
 (defun servant/init ()
+  "Initialize the project for Servant."
   (when (f-dir? servant-path)
     (error (ansi-red "Directory `servant` already exists.")))
   (f-mkdir servant-path)
@@ -89,6 +102,7 @@
   (message "create %s" (ansi-green "servant/packages")))
 
 (defun servant/start ()
+  "Start server."
   (unless (f-dir? servant-path)
     (error (ansi-red "Servant not initialized, run `servant init`.")))
   (unless (f-file? servant-index-file)
@@ -99,9 +113,11 @@
   (while t (sit-for 10000)))
 
 (defun servant-stop ()
+  "Stop server."
   (elnode-stop servant-port))
 
 (defun servant/index ()
+  "Generate index (archive contents) file for all packages."
   (let* ((package-files (f--files servant-packages-path (s-matches? servant-package-re it)))
          (packages (-map 'servant--package-info package-files)))
     (f-write
@@ -113,6 +129,12 @@
      'utf-8 servant-index-file)))
 
 (defun servant--package-info (filename)
+  "Get package info from FILENAME.
+
+FILENAME can be either an Emacs Lisp file or a tar file with an
+Emacs Lisp file or PKG file in it.
+
+Result is a list of the form: (name version requires description format)"
   (let ((ext (f-ext filename)))
     (cond ((equal ext "el")
            (servant--el-package-info filename))
@@ -120,6 +142,7 @@
            (servant--tar-package-info filename)))))
 
 (defun servant--el-package-info (filename)
+  "Get package information from main Emacs Lisp file."
   (with-temp-buffer
     (insert (f-read filename))
     (let* ((info (package-buffer-info))
@@ -131,6 +154,7 @@
       (list name version requires description format))))
 
 (defun servant--pkg-package-info (filename)
+  "Get package information from PKG file."
   (let ((info (cdr (read (f-read filename)))))
     (list
      (intern (nth 0 info))
@@ -143,6 +167,7 @@
      (f-ext filename))))
 
 (defun servant--tar-package-info (filename)
+  "Get package information from Tar file."
   (let* ((matches (s-match servant-package-re filename))
          (name (nth 1 matches))
          (version (nth 2 matches))
