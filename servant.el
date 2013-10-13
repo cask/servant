@@ -73,7 +73,7 @@
 (defun servant/start ()
   (unless (f-dir? servant-path)
     (error (ansi-red "Servant not initialized, run `servant init`.")))
-  (unless (f-dir? servant-index-file)
+  (unless (f-file? servant-index-file)
     (error (ansi-red "No index, run `servant index` to create")))
 
   (message "starting server on port %s using PID %s" servant-port servant-pid-file)
