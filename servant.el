@@ -32,6 +32,11 @@
 
 ;;; Code:
 
+(require 's)
+(require 'f)
+(require 'dash)
+(require 'elnode)
+(require 'commander)
 (provide 'servant)
 
 ;;; servant.el ends here
