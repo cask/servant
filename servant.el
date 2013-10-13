@@ -62,6 +62,13 @@
 (defun servant/help ()
   (commander-print-usage-and-exit))
 
+(defun servant/init ()
+  (when (f-dir? servant-path)
+    (error (ansi-red "Directory `%s` already exists." (f-filename servant-path))))
+  (f-mkdir servant-path)
+  (f-mkdir servant-packages-path)
+  (message "create %s" (ansi-green "servant"))
+  (message "create %s" (ansi-green "servant/packages")))
 (commander
  (name "servant")
  (description "Serve ELPA packages")
@@ -73,6 +80,7 @@
  (option "-P <file>, --pid <file>" "File to store PID (default: servant.pid)" servant/pid)
 
  (command "help" "Print usage information" servant/help))
+ (command "init" "Initialize servant" servant/init)
 
 (provide 'servant)
 
