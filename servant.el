@@ -64,7 +64,7 @@
 
 (defun servant/init ()
   (when (f-dir? servant-path)
-    (error (ansi-red "Directory `%s` already exists." (f-filename servant-path))))
+    (error (ansi-red "Directory `servant` already exists."))
   (f-mkdir servant-path)
   (f-mkdir servant-packages-path)
   (message "create %s" (ansi-green "servant"))
