@@ -40,6 +40,9 @@
 (require 'package)
 (require 'commander)
 
+
+;;;; Variables
+
 (defvar servant-port 9191
   "Server port.")
 
@@ -73,6 +76,9 @@
     ("\/.*" . servant--default-handler))
   "Server routes.")
 
+
+;;;; Options
+
 (defun servant/pid (pid-file)
   "Set path to PID file."
   (setq servant-pid-file pid-file))
@@ -89,6 +95,9 @@
   "Enable debug options."
   (setq debug-on-error t)
   (setq debug-on-entry t))
+
+
+;;;; Commands
 
 (defun servant/init ()
   "Initialize the project for Servant."
@@ -127,6 +136,9 @@
        "\n "
        (--map (apply 'format "(%s . [%s %s \"%s\" %s])" it) packages)))
      'utf-8 servant-index-file)))
+
+
+;;;; Helper functions
 
 (defun servant--package-info (filename)
   "Get package info from FILENAME.
@@ -185,6 +197,9 @@ Result is a list of the form: (name version requires description format)"
           (when (f-file? main-file)
             (servant--el-package-info main-file)))))))
 
+
+;;;; ELnode handlers
+
 (defun servant--root-handler (httpcon)
   (elnode-hostpath-dispatcher httpcon servant-routes))
 
@@ -216,6 +231,9 @@ Result is a list of the form: (name version requires description format)"
 (defun servant--default-handler (httpcon)
   (elnode-http-start httpcon 200 '("Content-type" . "text/plain"))
   (elnode-http-return httpcon ""))
+
+
+;;;; Commander schema
 
 (commander
  (name "servant")
