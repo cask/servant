@@ -39,6 +39,11 @@
 (require 'elnode)
 (require 'commander)
 
+(defvar servant-port 9191)
+
+(defun servant/port (port)
+  (setq servant-port port))
+
 (defun servant/help ()
   (commander-print-usage-and-exit))
 
@@ -49,6 +54,7 @@
  (default servant/help)
 
  (option "-h, --help" "Print usage information" servant/help)
+ (option "-p <port>, --port <port>" "Use port (default: 9191)" servant/port)
 
  (command "help" "Print usage information" servant/help))
 
