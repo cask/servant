@@ -69,6 +69,15 @@
   (f-mkdir servant-packages-path)
   (message "create %s" (ansi-green "servant"))
   (message "create %s" (ansi-green "servant/packages")))
+
+(defun servant/start ()
+  (unless (f-dir? servant-path)
+    (error (ansi-red "Servant not initialized, run `servant init`.")))
+  (unless (f-dir? servant-index-file)
+    (error (ansi-red "No index, run `servant index` to create")))
+
+  (message "starting server on port %s using PID %s" servant-port servant-pid-file)
+  )
 (commander
  (name "servant")
  (description "Serve ELPA packages")
@@ -79,8 +88,9 @@
  (option "-p <port>, --port <port>" "Use port (default: 9191)" servant/port)
  (option "-P <file>, --pid <file>" "File to store PID (default: servant.pid)" servant/pid)
 
- (command "help" "Print usage information" servant/help))
  (command "init" "Initialize servant" servant/init)
+ (command "help" "Print usage information" servant/help)
+ (command "start" "Start server" servant/start))
 
 (provide 'servant)
 
