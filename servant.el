@@ -45,6 +45,9 @@
 (defconst servant-path
   (f-expand "servant"))
 
+(defconst servant-tmp-path
+  (f-expand "tmp" servant-path))
+
 (defconst servant-packages-path
   (f-expand "packages" servant-path))
 
@@ -55,7 +58,7 @@
   "\/\\([^/]+\\)-\\(.+\\)\.\\(tar\\|el\\)$")
 
 (defvar servant-pid-file
-  (f-expand "servant.pid" servant-path))
+  (f-expand "servant.pid" servant-tmp-path))
 
 (defconst servant-routes
   '(("\/packages\/archive-contents$" . servant--archive-handler)
@@ -79,8 +82,10 @@
   (when (f-dir? servant-path)
     (error (ansi-red "Directory `servant` already exists.")))
   (f-mkdir servant-path)
+  (f-mkdir servant-tmp-path)
   (f-mkdir servant-packages-path)
   (message "create %s" (ansi-green "servant"))
+  (message "create %s" (ansi-green "servant/tmp"))
   (message "create %s" (ansi-green "servant/packages")))
 
 (defun servant/start ()
