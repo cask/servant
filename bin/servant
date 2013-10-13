@@ -1,0 +1,11 @@
+#!/bin/sh
+
+if [[ -n "$INSIDE_EMACS" ]]; then
+  SERVANT_EMACS="emacs"
+else
+  SERVANT_EMACS="${EMACS:-emacs}"
+fi
+
+SERVANT_HOME="$(dirname $(dirname $0))"
+
+${SERVANT_EMACS} -Q --script "${SERVANT_HOME}/servant.el" -- "$@"
