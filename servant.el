@@ -37,6 +37,7 @@
 (require 'ansi)
 (require 'dash)
 (require 'elnode)
+(require 'package)
 (require 'commander)
 
 (defvar servant-port 9191)
@@ -49,6 +50,9 @@
 
 (defconst servant-index-file
   (f-expand "index" servant-path))
+
+(defconst servant-package-re
+  "\/\\([^/]+\\)-\\(.+\\)\.\\(tar\\|el\\)$")
 
 (defvar servant-pid-file
   (f-expand "servant.pid" servant-path))
@@ -88,16 +92,34 @@
   (when noninteractive
     (with-temp-file servant-pid-file
       (insert (format "%s" (emacs-pid))))
-    ;; TODO: Should be able to wait longer:
-    ;;   (while t (sit-for most-positive-fixnum))
     (while t (sit-for 10000))))
 
 (defun servant-stop ()
   (elnode-stop servant-port))
 
 (defun servant/index ()
-  (message "Indexing... %s" servant-index-file)
-  )
+  (let* ((package-files (f--files servant-packages-path (s-matches? servant-package-re it)))
+         (packages
+          (-map
+           (lambda (package-file)
+             (with-temp-buffer
+               (insert (f-read package-file))
+               (let* ((matches (s-match servant-package-re package-file))
+                      (info (package-buffer-info))
+                      (name (intern (nth 1 matches)))
+                      (version (version-to-list (nth 2 matches)))
+                      (requires (aref info 1))
+                      (description (aref info 2))
+                      (format (intern (nth 3 matches))))
+                 (list name version requires description format))))
+           package-files)))
+    (f-write
+     (format
+      "(1\n %s)"
+      (s-join
+       "\n "
+       (--map (apply 'format "(%s . [%s %s \"%s\" %s])" it) packages)))
+     'utf-8 servant-index-file)))
 
 (defun servant--root-handler (httpcon)
   (elnode-hostpath-dispatcher httpcon servant-routes))
