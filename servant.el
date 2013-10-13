@@ -103,20 +103,7 @@
 
 (defun servant/index ()
   (let* ((package-files (f--files servant-packages-path (s-matches? servant-package-re it)))
-         (packages
-          (-map
-           (lambda (package-file)
-             (with-temp-buffer
-               (insert (f-read package-file))
-               (let* ((matches (s-match servant-package-re package-file))
-                      (info (package-buffer-info))
-                      (name (intern (nth 1 matches)))
-                      (version (version-to-list (nth 2 matches)))
-                      (requires (aref info 1))
-                      (description (aref info 2))
-                      (format (intern (nth 3 matches))))
-                 (list name version requires description format))))
-           package-files)))
+         (packages (-map 'servant--package-info package-files)))
     (f-write
      (format
       "(1\n %s)"
@@ -124,6 +111,18 @@
        "\n "
        (--map (apply 'format "(%s . [%s %s \"%s\" %s])" it) packages)))
      'utf-8 servant-index-file)))
+
+(defun servant--package-info (filename)
+  (with-temp-buffer
+    (insert (f-read filename))
+    (let* ((matches (s-match servant-package-re filename))
+           (info (package-buffer-info))
+           (name (intern (nth 1 matches)))
+           (version (version-to-list (nth 2 matches)))
+           (requires (aref info 1))
+           (description (aref info 2))
+           (format (intern (nth 3 matches))))
+      (list name version requires description format))))
 
 (defun servant--root-handler (httpcon)
   (elnode-hostpath-dispatcher httpcon servant-routes))
