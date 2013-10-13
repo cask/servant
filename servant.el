@@ -62,6 +62,10 @@
 (defun servant/help ()
   (commander-print-usage-and-exit))
 
+(defun servant/debug ()
+  (setq debug-on-error t)
+  (setq debug-on-entry t))
+
 (defun servant/init ()
   (when (f-dir? servant-path)
     (error (ansi-red "Directory `servant` already exists.")))
@@ -92,6 +96,7 @@
  (option "-h, --help" "Print usage information" servant/help)
  (option "-p <port>, --port <port>" "Use port (default: 9191)" servant/port)
  (option "-P <file>, --pid <file>" "File to store PID (default: servant.pid)" servant/pid)
+ (option "--debug" "Enable debug information" servant/debug)
 
  (command "init" "Initialize servant" servant/init)
  (command "index" "Build package index" servant/index)
