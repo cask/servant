@@ -37,6 +37,20 @@
 (require 'dash)
 (require 'elnode)
 (require 'commander)
+
+(defun servant/help ()
+  (commander-print-usage-and-exit))
+
+(commander
+ (name "servant")
+ (description "Serve ELPA packages")
+
+ (default servant/help)
+
+ (option "-h, --help" "Print usage information" servant/help)
+
+ (command "help" "Print usage information" servant/help))
+
 (provide 'servant)
 
 ;;; servant.el ends here
