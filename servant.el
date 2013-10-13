@@ -225,7 +225,7 @@ Result is a list of the form: (name version requires description format)"
 
  (option "-h, --help" "Print usage information" servant/help)
  (option "-p <port>, --port <port>" "Use port (default: 9191)" servant/port)
- (option "-P <file>, --pid <file>" "File to store PID (default: servant.pid)" servant/pid)
+ (option "-P <file>, --pid <file>" "Name to PID file (default: servant.pid)" servant/pid)
  (option "--debug" "Enable debug information" servant/debug)
  (option "--index" "Index before running command" servant/index)
 
