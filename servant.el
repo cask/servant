@@ -53,6 +53,11 @@
 (defvar servant-pid-file
   (f-expand "servant.pid" servant-path))
 
+(defconst servant-routes
+  '(("\/packages\/archive-contents$" . servant--archive-handler)
+    ("\/packages\/\\(.+\\)-\\(.+\\)\.\\(tar\\|el\\)$" . servant--package-handler)
+    ("\/.*" . servant--default-handler)))
+
 (defun servant/pid (pid)
   (setq servant-pid-file pid))
 
@@ -79,9 +84,13 @@
     (error (ansi-red "Servant not initialized, run `servant init`.")))
   (unless (f-file? servant-index-file)
     (error (ansi-red "No index, run `servant index` to create")))
-
-  (message "starting server on port %s using PID %s" servant-port servant-pid-file)
-  )
+  (elnode-start 'servant--root-handler :port servant-port :host "localhost")
+  (when noninteractive
+    (with-temp-file servant-pid-file
+      (insert (format "%s" (emacs-pid))))
+    ;; TODO: Should be able to wait longer:
+    ;;   (while t (sit-for most-positive-fixnum))
+    (while t (sit-for 10000))))
 
 (defun servant-stop ()
   (elnode-stop servant-port))
@@ -89,6 +98,38 @@
 (defun servant/index ()
   (message "Indexing... %s" servant-index-file)
   )
+
+(defun servant--root-handler (httpcon)
+  (elnode-hostpath-dispatcher httpcon servant-routes))
+
+(defun servant--archive-handler (httpcon)
+  (elnode-http-start httpcon 200 '("Content-type" . "text/plain"))
+  (elnode-http-return httpcon (f-read servant-index-file)))
+
+(defun servant--package-handler (httpcon)
+  (let* ((name (elnode-http-mapping httpcon 1))
+         (version (elnode-http-mapping httpcon 2))
+         (format (elnode-http-mapping httpcon 3))
+         (package-file
+          (f-expand (concat name "-" version "." format) servant-packages-path)))
+    (cond ((f-file? package-file)
+           (let* ((content (f-read package-file))
+                  (content-type
+                   (if (equal format "el")
+                       "application/octet-stream"
+                     "application/x-tar"))
+                  (content-length (length content)))
+             (elnode-http-start httpcon 404
+                                `("Content-type" . ,content-type)
+                                `("Content-length" . ,content-length))
+             (elnode-http-return httpcon content)))
+          (t
+           (elnode-http-start httpcon 404 '("Content-type" . "text/plain"))
+           (elnode-http-return httpcon (format "Package `%s` not found" name))))))
+
+(defun servant--default-handler (httpcon)
+  (elnode-http-start httpcon 200 '("Content-type" . "text/plain"))
+  (elnode-http-return httpcon ""))
 
 (commander
  (name "servant")
