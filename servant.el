@@ -94,10 +94,9 @@
   (unless (f-file? servant-index-file)
     (error (ansi-red "No index, run `servant index` to create")))
   (elnode-start 'servant--root-handler :port servant-port :host "localhost")
-  (when noninteractive
-    (with-temp-file servant-pid-file
-      (insert (format "%s" (emacs-pid))))
-    (while t (sit-for 10000))))
+  (with-temp-file servant-pid-file
+    (insert (format "%s" (emacs-pid))))
+  (while t (sit-for 10000)))
 
 (defun servant-stop ()
   (elnode-stop servant-port))
