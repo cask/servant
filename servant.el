@@ -238,6 +238,7 @@ Result is a list of the form: (name version requires description format)"
 (commander
  (name "servant")
  (description "Serve ELPA packages")
+ (config ".servant")
 
  (default servant/help)
 
