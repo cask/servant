@@ -161,7 +161,7 @@ Result is a list of the form: (name version requires description format)"
      (epl-package-name package)
      (epl-package-version package)
      (--map (list (epl-requirement-name it)
-                  (epl-requirement-version-string it))
+                  (epl-requirement-version it))
             (epl-package-requirements package))
      (epl-package-summary package)
      format)))
