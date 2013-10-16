@@ -121,7 +121,7 @@
     (insert (format "%s" (emacs-pid))))
   (while t (sit-for 10000)))
 
-(defun servant-stop ()
+(defun servant/stop ()
   "Stop server."
   (elnode-stop servant-port))
 
