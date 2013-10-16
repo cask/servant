@@ -87,10 +87,6 @@
   "Set server port."
   (setq servant-port port))
 
-(defun servant/help ()
-  "Show Servant usage information."
-  (commander-print-usage-and-exit))
-
 (defun servant/debug ()
   "Enable debug options."
   (setq debug-on-error t)
@@ -98,6 +94,10 @@
 
 
 ;;;; Commands
+
+(defun servant/help ()
+  "Show Servant usage information."
+  (commander-print-usage-and-exit))
 
 (defun servant/init ()
   "Initialize the project for Servant."
