@@ -7,7 +7,7 @@
 ;; Version: 0.0.1
 ;; Keywords: elpa, server
 ;; URL: http://github.com/rejeep/servant.el
-;; Package-Requires: ((s "1.8.0") (dash "2.2.0") (f "0.11.0") (ansi "0.3.0") (commander "0.5.0") (elnode "0.9.9.7.6"))
+;; Package-Requires: ((s "1.8.0") (dash "2.2.0") (f "0.11.0") (ansi "0.3.0") (commander "0.5.0") (elnode "0.9.9.7.6") (epl "0.1"))
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -36,8 +36,8 @@
 (require 'f)
 (require 'ansi)
 (require 'dash)
+(require 'epl)
 (require 'elnode)
-(require 'package)
 (require 'commander)
 
 
@@ -155,15 +155,16 @@ Result is a list of the form: (name version requires description format)"
 
 (defun servant--el-package-info (filename)
   "Get package information from main Emacs Lisp file."
-  (with-temp-buffer
-    (insert (f-read filename))
-    (let* ((info (package-buffer-info))
-           (name (intern (aref info 0)))
-           (version (version-to-list (aref info 3)))
-           (requires (aref info 1))
-           (description (aref info 2))
-           (format (intern (f-ext filename))))
-      (list name version requires description format))))
+  (let ((format (intern (f-ext filename)))
+        (package (epl-package-from-file filename)))
+    (list
+     (epl-package-name package)
+     (epl-package-version package)
+     (--map (list (epl-requirement-name it)
+                  (epl-requirement-version-string it))
+            (epl-package-requirements package))
+     (epl-package-summary package)
+     format)))
 
 (defun servant--pkg-package-info (filename)
   "Get package information from PKG file."
