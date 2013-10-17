@@ -82,7 +82,7 @@ Return a package index entry."
 (defun servant-create-routes (package-directory)
   "Create routes to serve packages from PACKAGE-DIRECTORY."
   (list
-   (cons "^.*/\\(.*\\)" (elnode-webserver-handler-maker
+   (cons "^.*/\\(.*\\)$" (elnode-webserver-handler-maker
                          package-directory
                          '(("application/x-tar" . "tar")
                            ("text/x-emacs-lisp" . "x"))))))
@@ -91,7 +91,7 @@ Return a package index entry."
   "Create a handler to serve packages from PACKAGE-DIRECTORY."
   (let ((routes (servant-create-routes package-directory)))
     (lambda (httpcon)
-      (elnode-dispatcher httpcon routes))))
+      (elnode-hostpath-dispatcher httpcon routes))))
 
 
 ;;;; Variables
@@ -120,7 +120,7 @@ Return a package index entry."
   "Path to server PID file.")
 
 (defconst servant-routes
-  (list (cons "^/packages/\\(.*\\)"
+  (list (cons "^.*//packages/\\(.*\\)$"
               (servant-make-elnode-handler servant-packages-path)))
   "Routes for the built-in local server.")
 
@@ -165,7 +165,7 @@ Return a package index entry."
   (unless (f-file? servant-index-file)
     (error (ansi-red "No index, run `servant index` to create")))
   (elnode-start (lambda (httpcon)
-                  (elnode-dispatcher httpcon servant-routes))
+                  (elnode-hostpath-dispatcher httpcon servant-routes))
                 :port servant-port :host "localhost")
   (with-temp-file servant-pid-file
     (insert (format "%s" (emacs-pid))))
