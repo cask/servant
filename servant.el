@@ -166,7 +166,7 @@ Result is a list of the form: (name version requires description format)"
 
 (defun servant--archive-handler (httpcon)
   (elnode-http-start httpcon 200 '("Content-type" . "text/plain"))
-  (elnode-http-return httpcon (f-read servant-index-file)))
+  (elnode-send-file httpcon servant-index-file))
 
 (defun servant--package-handler (httpcon)
   (let* ((name (elnode-http-mapping httpcon 1))
