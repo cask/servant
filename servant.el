@@ -40,6 +40,43 @@
 (require 'elnode)
 (require 'commander)
 
+
+
+;;;; Package Index functions
+
+(defun servant-create-index-entry (file-name)
+  "Create a package index entry for the package at FILE-NAME.
+
+FILE-NAME can be either an Emacs Lisp file or a tar file with an
+Emacs Lisp file or PKG file in it.
+
+Return a package index entry."
+  (let ((format (if (string= (f-ext file-name) "tar") 'tar 'single))
+        (package (epl-package-from-file file-name)))
+    (cons (epl-package-name package)
+          (vector (epl-package-version package)
+                  (--map (list (epl-requirement-name it)
+                               (epl-requirement-version it))
+                         (epl-package-requirements package))
+                  (epl-package-summary package)
+                  format))))
+
+(defun servant-package-file? (file-name)
+  "Determine whether FILE-NAME is a package."
+  (member (f-ext file-name) '("el" "tar")))
+
+(defun servant-create-index (directory)
+  "Generate a package index for DIRECTORY."
+  (let* ((package-files (f-files directory #'servant-package-file?))
+         (entries (-map 'servant-create-index-entry package-files)))
+    (append (list 1) entries)))
+
+(defun servant--create-index-string (directory)
+  "Generate a package index for DIRECTORY as string."
+  (let ((print-level nil)
+        (print-length nil))
+    (prin1-to-string (servant-create-index directory))))
+
 
 ;;;; Generic elnode handlers
 (defun servant-create-routes (package-directory)
@@ -77,10 +114,6 @@
 (defconst servant-index-file
   (f-expand "archive-contents" servant-packages-path)
   "Path to index (archive content) file.")
-
-(defconst servant-package-re
-  "\/\\([^/]+\\)-\\([^/]+\\)\.\\(tar\\|el\\)$"
-  "Regular expression matching a package file name.")
 
 (defvar servant-pid-file
   (f-expand "servant.pid" servant-tmp-path)
@@ -144,40 +177,8 @@
 
 (defun servant/index ()
   "Generate index (archive contents) file for all packages."
-  (f-write (servant--index-string servant-packages-path)
+  (f-write (servant--create-index-string servant-packages-path)
            'utf-8 servant-index-file))
-
-
-;;;; Helper functions
-
-(defun servant--package-index-entry (filename)
-  "Create a package index entry for the package at FILENAME.
-
-FILENAME can be either an Emacs Lisp file or a tar file with an
-Emacs Lisp file or PKG file in it.
-
-Return a package index entry."
-  (let ((format (if (string= (f-ext filename) "tar") 'tar 'single))
-        (package (epl-package-from-file filename)))
-    (cons (epl-package-name package)
-          (vector (epl-package-version package)
-                  (--map (list (epl-requirement-name it)
-                               (epl-requirement-version it))
-                         (epl-package-requirements package))
-                  (epl-package-summary package)
-                  format))))
-
-(defun servant--index (directory)
-  "Generate and return a package index for DIRECTORY."
-  (let* ((package-files (f--files servant-packages-path (s-matches? servant-package-re it)))
-         (entries (-map 'servant--package-index-entry package-files)))
-    (append (list 1) entries)))
-
-(defun servant--index-string (directory)
-  "Generate and return a package index as string."
-  (let ((print-level nil)
-        (print-length nil))
-    (prin1-to-string (servant--index directory))))
 
 
 ;;;; Commander schema
