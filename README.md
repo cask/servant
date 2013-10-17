@@ -23,7 +23,9 @@ $ cask exec servant init
 This will create a directory called `servant`. To serve packages,
 simply add `.el` or `.tar` files to the `servant/packages` directory.
 
-Before starting the server, the index needs to be built:
+If you have lots of packages and need to boost performance, build the
+index manually. If you don't, the index will be built automatically at
+runtime.
 
 ```sh
 $ cask exec servant index
@@ -33,12 +35,6 @@ Then, start the server:
 
 ```sh
 $ cask exec servant start
-```
-
-This can be done in the same command:
-
-```sh
-$ cask exec servant start --index
 ```
 
 For more information:
