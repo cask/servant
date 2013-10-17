@@ -1,4 +1,4 @@
-;;; servant.el --- ELPA server written in Emacs Lisp
+;;; servant.el --- ELPA server written in Emacs Lisp -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2013 Johan Andersson
 
