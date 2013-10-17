@@ -59,8 +59,8 @@
   "Path to package directory.")
 
 (defconst servant-index-file
-  (f-expand "index" servant-path)
-  "Path to index (archive context) file.")
+  (f-expand "archive-contents" servant-packages-path)
+  "Path to index (archive content) file.")
 
 (defconst servant-package-re
   "\/\\([^/]+\\)-\\([^/]+\\)\.\\(tar\\|el\\)$"
