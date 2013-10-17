@@ -127,36 +127,40 @@
 
 (defun servant/index ()
   "Generate index (archive contents) file for all packages."
-  (let* ((package-files (f--files servant-packages-path (s-matches? servant-package-re it)))
-         (packages (-map 'servant--package-info package-files)))
-    (f-write
-     (format
-      "(1\n %s)"
-      (s-join
-       "\n "
-       (--map (apply 'format "(%s . [%s %s \"%s\" %s])" it) packages)))
-     'utf-8 servant-index-file)))
+  (f-write (servant--index-string servant-packages-path)
+           'utf-8 servant-index-file))
 
 
 ;;;; Helper functions
 
-(defun servant--package-info (filename)
-  "Get package info from FILENAME.
+(defun servant--package-index-entry (filename)
+  "Create a package index entry for the package at FILENAME.
 
 FILENAME can be either an Emacs Lisp file or a tar file with an
 Emacs Lisp file or PKG file in it.
 
-Result is a list of the form: (name version requires description format)"
+Return a package index entry."
   (let ((format (if (string= (f-ext filename) "tar") 'tar 'single))
         (package (epl-package-from-file filename)))
-    (list
-     (epl-package-name package)
-     (epl-package-version package)
-     (--map (list (epl-requirement-name it)
-                  (epl-requirement-version it))
-            (epl-package-requirements package))
-     (epl-package-summary package)
-     format)))
+    (cons (epl-package-name package)
+          (vector (epl-package-version package)
+                  (--map (list (epl-requirement-name it)
+                               (epl-requirement-version it))
+                         (epl-package-requirements package))
+                  (epl-package-summary package)
+                  format))))
+
+(defun servant--index (directory)
+  "Generate and return a package index for DIRECTORY."
+  (let* ((package-files (f--files servant-packages-path (s-matches? servant-package-re it)))
+         (entries (-map 'servant--package-index-entry package-files)))
+    (append (list 1) entries)))
+
+(defun servant--index-string (directory)
+  "Generate and return a package index as string."
+  (let ((print-level nil)
+        (print-length nil))
+    (prin1-to-string (servant--index directory))))
 
 
 ;;;; ELnode handlers
