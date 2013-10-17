@@ -7,7 +7,7 @@
 ;; Version: 0.0.1
 ;; Keywords: elpa, server
 ;; URL: http://github.com/rejeep/servant.el
-;; Package-Requires: ((s "1.8.0") (dash "2.2.0") (f "0.11.0") (ansi "0.3.0") (commander "0.5.0") (elnode "0.9.9.7.6") (epl "0.1"))
+;; Package-Requires: ((s "1.8.0") (dash "2.2.0") (f "0.11.0") (ansi "0.3.0") (commander "0.5.0") (elnode "0.9.9.7.6") (epl "0.2"))
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -147,14 +147,6 @@ FILENAME can be either an Emacs Lisp file or a tar file with an
 Emacs Lisp file or PKG file in it.
 
 Result is a list of the form: (name version requires description format)"
-  (let ((ext (f-ext filename)))
-    (cond ((equal ext "el")
-           (servant--el-package-info filename))
-          ((equal ext "tar")
-           (servant--tar-package-info filename)))))
-
-(defun servant--el-package-info (filename)
-  "Get package information from main Emacs Lisp file."
   (let ((format (intern (f-ext filename)))
         (package (epl-package-from-file filename)))
     (list
@@ -165,38 +157,6 @@ Result is a list of the form: (name version requires description format)"
             (epl-package-requirements package))
      (epl-package-summary package)
      format)))
-
-(defun servant--pkg-package-info (filename)
-  "Get package information from PKG file."
-  (let ((info (cdr (read (f-read filename)))))
-    (list
-     (intern (nth 0 info))
-     (version-to-list (nth 1 info))
-     (mapcar
-      (lambda (elt)
-        (list (car elt) (version-to-list (cadr elt))))
-      (eval (nth 3 info)))
-     (nth 2 info)
-     (f-ext filename))))
-
-(defun servant--tar-package-info (filename)
-  "Get package information from Tar file."
-  (let* ((matches (s-match servant-package-re filename))
-         (name (nth 1 matches))
-         (version (nth 2 matches))
-         (extract-to (f-expand (concat name "-" version) servant-tmp-path)))
-    (when (f-dir? extract-to)
-      (f-delete extract-to :force))
-    (f-mkdir extract-to)
-    (with-temp-buffer
-      (when (= (call-process (executable-find "tar") nil (current-buffer) nil "-xf" filename "-C" extract-to) 1)
-        (error (buffer-string))))
-    (let ((pkg-file (f-expand (concat name "-pkg.el") extract-to)))
-      (if (f-file? pkg-file)
-          (servant--pkg-package-info pkg-file)
-        (let ((main-file (f-expand (concat name ".el") extract-to)))
-          (when (f-file? main-file)
-            (servant--el-package-info main-file)))))))
 
 
 ;;;; ELnode handlers
