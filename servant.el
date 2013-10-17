@@ -79,9 +79,23 @@ Return a package index entry."
 
 
 ;;;; Generic elnode handlers
+(defun servant-make-index-handler (package-directory)
+  "Create a handler to serve the index for PACKAGE-DIRECTORY.
+
+If PACKAGE-DIRECTORY has no index file, return an in-memory
+index, which is auto-generated on the fly."
+  (let ((index-file (f-join package-directory "archive-contents")))
+    (lambda (httpcon)
+      (elnode-http-start httpcon 200 '("Content-type" . "text/plain"))
+      (if (f-exists? index-file)
+          (elnode-send-file httpcon index-file)
+        (elnode-http-return
+         httpcon (servant--create-index-string package-directory))))))
+
 (defun servant-create-routes (package-directory)
   "Create routes to serve packages from PACKAGE-DIRECTORY."
   (list
+   (cons "^.*/archive-contents$" (servant-make-index-handler package-directory))
    (cons "^.*/\\(.*\\)$" (elnode-webserver-handler-maker
                          package-directory
                          '(("application/x-tar" . "tar")
@@ -162,8 +176,6 @@ Return a package index entry."
   "Start server."
   (unless (f-dir? servant-path)
     (error (ansi-red "Servant not initialized, run `servant init`.")))
-  (unless (f-file? servant-index-file)
-    (error (ansi-red "No index, run `servant index` to create")))
   (elnode-start (lambda (httpcon)
                   (elnode-hostpath-dispatcher httpcon servant-routes))
                 :port servant-port :host "localhost")
