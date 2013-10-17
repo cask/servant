@@ -1,4 +1,4 @@
-;;; servant.el --- ELPA server written in Emacs Lisp
+;;; servant.el --- ELPA server written in Emacs Lisp -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2013 Johan Andersson
 
@@ -41,6 +41,22 @@
 (require 'commander)
 
 
+;;;; Generic elnode handlers
+(defun servant-create-routes (package-directory)
+  "Create routes to serve packages from PACKAGE-DIRECTORY."
+  (list
+   (cons "^.*/\\(.*\\)" (elnode-webserver-handler-maker
+                         package-directory
+                         '(("application/x-tar" . "tar")
+                           ("text/x-emacs-lisp" . "x"))))))
+
+(defun servant-make-elnode-handler (package-directory)
+  "Create a handler to serve packages from PACKAGE-DIRECTORY."
+  (let ((routes (servant-create-routes package-directory)))
+    (lambda (httpcon)
+      (elnode-dispatcher httpcon routes))))
+
+
 ;;;; Variables
 
 (defvar servant-port 9191
@@ -59,8 +75,8 @@
   "Path to package directory.")
 
 (defconst servant-index-file
-  (f-expand "index" servant-path)
-  "Path to index (archive context) file.")
+  (f-expand "archive-contents" servant-packages-path)
+  "Path to index (archive content) file.")
 
 (defconst servant-package-re
   "\/\\([^/]+\\)-\\([^/]+\\)\.\\(tar\\|el\\)$"
@@ -71,10 +87,9 @@
   "Path to server PID file.")
 
 (defconst servant-routes
-  '(("\/packages\/archive-contents$" . servant--archive-handler)
-    ("\/packages\/\\(.+\\)-\\(.+\\)\.\\(tar\\|el\\)$" . servant--package-handler)
-    ("\/.*" . servant--default-handler))
-  "Server routes.")
+  (list (cons "^/packages/\\(.*\\)"
+              (servant-make-elnode-handler servant-packages-path)))
+  "Routes for the built-in local server.")
 
 
 ;;;; Options
@@ -116,7 +131,9 @@
     (error (ansi-red "Servant not initialized, run `servant init`.")))
   (unless (f-file? servant-index-file)
     (error (ansi-red "No index, run `servant index` to create")))
-  (elnode-start 'servant--root-handler :port servant-port :host "localhost")
+  (elnode-start (lambda (httpcon)
+                  (elnode-dispatcher httpcon servant-routes))
+                :port servant-port :host "localhost")
   (with-temp-file servant-pid-file
     (insert (format "%s" (emacs-pid))))
   (while t (sit-for 10000)))
@@ -161,41 +178,6 @@ Return a package index entry."
   (let ((print-level nil)
         (print-length nil))
     (prin1-to-string (servant--index directory))))
-
-
-;;;; ELnode handlers
-
-(defun servant--root-handler (httpcon)
-  (elnode-hostpath-dispatcher httpcon servant-routes))
-
-(defun servant--archive-handler (httpcon)
-  (elnode-http-start httpcon 200 '("Content-type" . "text/plain"))
-  (elnode-send-file httpcon servant-index-file))
-
-(defun servant--package-handler (httpcon)
-  (let* ((name (elnode-http-mapping httpcon 1))
-         (version (elnode-http-mapping httpcon 2))
-         (format (elnode-http-mapping httpcon 3))
-         (package-file
-          (f-expand (concat name "-" version "." format) servant-packages-path)))
-    (cond ((f-file? package-file)
-           (let* ((content (f-read package-file))
-                  (content-type
-                   (if (equal format "el")
-                       "application/octet-stream"
-                     "application/x-tar"))
-                  (content-length (length content)))
-             (elnode-http-start httpcon 404
-                                `("Content-type" . ,content-type)
-                                `("Content-length" . ,content-length))
-             (elnode-http-return httpcon content)))
-          (t
-           (elnode-http-start httpcon 404 '("Content-type" . "text/plain"))
-           (elnode-http-return httpcon (format "Package `%s` not found" name))))))
-
-(defun servant--default-handler (httpcon)
-  (elnode-http-start httpcon 200 '("Content-type" . "text/plain"))
-  (elnode-http-return httpcon ""))
 
 
 ;;;; Commander schema
