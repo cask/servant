@@ -147,7 +147,7 @@ FILENAME can be either an Emacs Lisp file or a tar file with an
 Emacs Lisp file or PKG file in it.
 
 Result is a list of the form: (name version requires description format)"
-  (let ((format (intern (f-ext filename)))
+  (let ((format (if (string= (f-ext filename) "tar") 'tar 'single))
         (package (epl-package-from-file filename)))
     (list
      (epl-package-name package)
