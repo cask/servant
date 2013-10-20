@@ -33,7 +33,8 @@
 
 ;;; Code:
 
-(require 'servant)
+(require 'f)
+(require 'servant (f-join (f-parent (f-this-file)) "servant"))
 
 (require 'commander)
 (require 'ansi)
