@@ -1,9 +1,12 @@
 ;;; servant-cli.el --- Servant: CLI frontend         -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2013 Johan Andersson
+;; Copyright (C) 2013 Sebastian Wiesner <lunaryorn@gmail.com>
 
 ;; Author: Johan Andersson <johan.rejeep@gmail.com>
+;;     Sebastian Wiesner <lunaryorn@gmail.com>
 ;; Maintainer: Johan Andersson <johan.rejeep@gmail.com>
+;;     Sebastian Wiesner <lunaryorn@gmail.com>
 ;; Keywords: elpa, server
 ;; URL: http://github.com/rejeep/servant.el
 

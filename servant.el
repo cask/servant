@@ -1,9 +1,12 @@
 ;;; servant.el --- ELPA server written in Emacs Lisp -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2013 Johan Andersson
+;; Copyright (C) 2013 Sebastian Wiesner <lunaryorn@gmail.com>
 
 ;; Author: Johan Andersson <johan.rejeep@gmail.com>
+;;     Sebastian Wiesner <lunaryorn@gmail.com>
 ;; Maintainer: Johan Andersson <johan.rejeep@gmail.com>
+;;     Sebastian Wiesner <lunaryorn@gmail.com>
 ;; Version: 0.0.1
 ;; Keywords: elpa, server
 ;; URL: http://github.com/rejeep/servant.el
