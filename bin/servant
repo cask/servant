@@ -8,4 +8,4 @@ fi
 
 SERVANT_HOME="$(dirname $(dirname $0))"
 
-${SERVANT_EMACS} -Q --script "${SERVANT_HOME}/servant.el" -- "$@"
+${SERVANT_EMACS} -Q --script "${SERVANT_HOME}/servant-cli.el" -- "$@"
