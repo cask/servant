@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 if [[ -n "$INSIDE_EMACS" ]]; then
   SERVANT_EMACS="emacs"
