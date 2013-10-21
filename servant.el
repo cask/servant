@@ -128,7 +128,7 @@ PACKAGE-DIRECTORY."
                           (tar "application/x-tar")
                           (single "text/x-emacs-lisp")
                           (otherwise "application/octet-stream")))
-              (content (f-read-bytes target)))
+              (content (string-to-multibyte (f-read-bytes target))))
           (elnode-http-start httpcon 200
                              (cons "Content-Type" mimetype)
                              (cons "Content-Length" (length content)))
