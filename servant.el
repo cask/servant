@@ -145,7 +145,7 @@ PACKAGE-DIRECTORY."
    ;; of chunked transfers makes it into the package file, breaking extraction
    ;; of tars and loading of singles.  So for the sake of playing nice with
    ;; package.el, we use our own handler, that sends standard HTTP replies.
-   (cons "^.*/\\(.*\\)$" (servant-make-package-handler package-directory))
+   (cons "^.*/\\([^/]*\\)$" (servant-make-package-handler package-directory))
    ))
 
 (defun servant-make-elnode-handler (package-directory)
