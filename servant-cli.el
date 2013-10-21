@@ -35,8 +35,9 @@
 
 ;; Prevent elnode from starting a default server, see
 ;; https://github.com/nicferrier/elnode/issues/80
-(defvar elnode-do-init nil)
-(setq elnode-do-init nil)
+(eval-and-compile
+  (defvar elnode-do-init nil)
+  (setq elnode-do-init nil))
 
 (require 'f)
 (require 'servant (f-join (f-parent (f-this-file)) "servant"))
