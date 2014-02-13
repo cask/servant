@@ -9,6 +9,9 @@
 (defvar servant-test/root-path
   (f-parent servant-test/features-path))
 
+(defvar servant-test/sandbox-path
+  (f-expand "sandbox" servant-test/features-path))
+
 (defvar servant-test/stdout nil)
 (defvar servant-test/stderr nil)
 
@@ -20,4 +23,9 @@
 
 (Before
  (setq servant-test/stdout "")
- (setq servant-test/stderr ""))
+ (setq servant-test/stderr "")
+
+ (when (f-dir? servant-test/sandbox-path)
+   (f-delete servant-test/sandbox-path 'force))
+ (f-mkdir servant-test/sandbox-path)
+ (setq default-directory (f-slash servant-test/sandbox-path)))

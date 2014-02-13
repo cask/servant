@@ -10,3 +10,19 @@ Feature: Servant
       | -h     |
       | --help |
 
+  Scenario: Init
+    When I run servant "init"
+    Then I should see command output:
+      """
+      create servant
+      create servant/tmp
+      create servant/packages
+      """
+    And the directory "servant/tmp" should exist
+    And the directory "servant/packages" should exist
+    When I run servant "init"
+    Then I should see command error:
+      """
+      Directory `servant` already exists.
+      """
+
