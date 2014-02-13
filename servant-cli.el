@@ -80,15 +80,17 @@
 ;;;; Options
 
 (defun servant/pid (pid-file)
-  "Set path to PID file to PID-FILE."
+  "Set path to PID file to PID-FILE.
+
+Default is servant/tmp/servant.pid."
   (setq servant-pid-file pid-file))
 
 (defun servant/port (port)
-  "Set server port to PORT."
+  "Set server PORT, defaulting to 9191."
   (setq servant-port port))
 
 (defun servant/debug ()
-  "Enable debug options."
+  "Enable debug information."
   (setq debug-on-error t))
 
 
@@ -125,7 +127,7 @@
   (elnode-stop servant-port))
 
 (defun servant/index ()
-  "Generate index (archive contents) file for all packages."
+  "Generate index (archive-contents) file for all packages."
   (f-write (servant--create-index-string servant-packages-path)
            'utf-8 servant-index-file))
 
