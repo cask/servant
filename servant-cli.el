@@ -89,8 +89,7 @@
 
 (defun servant/debug ()
   "Enable debug options."
-  (setq debug-on-error t
-        debug-on-entry t))
+  (setq debug-on-error t))
 
 
 ;;;; Commands
