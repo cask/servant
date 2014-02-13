@@ -44,6 +44,9 @@
 
 (require 'commander)
 (require 'ansi)
+(require 'shut-up)
+
+(shut-up-silence-emacs)
 
 
 ;;;; Variables

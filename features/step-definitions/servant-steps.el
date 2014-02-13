@@ -22,6 +22,10 @@
   (lambda (output)
     (should (s-contains? output servant-test/stdout))))
 
+(Then "^I should not see command output:$"
+  (lambda (output)
+    (should-not (s-contains? output servant-test/stdout))))
+
 (Then "^I should see command error:$"
   (lambda (output)
     (should (s-contains? output servant-test/stderr))))

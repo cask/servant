@@ -26,3 +26,10 @@ Feature: Servant
       Directory `servant` already exists.
       """
 
+  Scenario: Shut up
+    When I run servant "init"
+    Then I should not see command output:
+      """
+      Loading vc-git...
+      """
+
