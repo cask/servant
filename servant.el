@@ -10,7 +10,7 @@
 ;; Version: 0.0.2
 ;; Keywords: elpa, server
 ;; URL: http://github.com/rejeep/servant.el
-;; Package-Requires: ((s "1.8.0") (dash "2.2.0") (f "0.11.0") (ansi "0.3.0") (commander "0.5.0") (elnode "0.9.9.7.6") (epl "0.2"))
+;; Package-Requires: ((s "1.8.0") (dash "2.2.0") (f "0.11.0") (ansi "0.3.0") (commander "0.5.0") (elnode "0.9.9.7.6") (epl "0.2") (shut-up "0.2.1"))
 
 ;; This file is NOT part of GNU Emacs.
 

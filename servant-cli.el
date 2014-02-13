@@ -33,64 +33,71 @@
 
 ;;; Code:
 
-;; Prevent elnode from starting a default server, see
-;; https://github.com/nicferrier/elnode/issues/80
-(eval-and-compile
-  (defvar elnode-do-init nil)
-  (setq elnode-do-init nil))
-
 (require 'f)
 (require 'servant (f-join (f-parent (f-this-file)) "servant"))
 
 (require 'commander)
 (require 'ansi)
+(require 'shut-up)
+
+(shut-up-silence-emacs)
 
 
-;;;; Variables
+
+(defvar servant-pid-file nil
+  "User overwritten PID file path.")
 
 (defvar servant-port 9191
   "Server port.")
 
-(defconst servant-path
-  (f-expand "servant")
-  "Path to main Servant directory.")
+(defvar servant-root-path default-directory
+  "Run commands with this as root.")
 
-(defconst servant-tmp-path
-  (f-expand "tmp" servant-path)
-  "Path to tmp directory.")
+(defun servant-path ()
+  "Path to main Servant directory."
+  (f-expand "servant" servant-root-path))
 
-(defconst servant-packages-path
-  (f-expand "packages" servant-path)
-  "Path to package directory.")
+(defun servant-tmp-path ()
+  "Path to tmp directory."
+  (f-expand "tmp" (servant-path)))
 
-(defconst servant-index-file
-  (f-expand "archive-contents" servant-packages-path)
-  "Path to index (archive content) file.")
+(defun servant-packages-path ()
+  "Path to package directory."
+  (f-expand "packages" (servant-path)))
 
-(defvar servant-pid-file
-  (f-expand "servant.pid" servant-tmp-path)
-  "Path to server PID file.")
+(defun servant-index-file ()
+  "Path to index (archive content) file."
+  (f-expand "archive-contents" (servant-packages-path)))
 
-(defconst servant-routes
+(defun servant-pid-file ()
+  "Path to server PID file."
+  (or servant-pid-file (f-expand "servant.pid" (servant-tmp-path))))
+
+(defun servant-routes ()
+  "Routes for the built-in local server."
   (list (cons "^.*//packages/\\(.*\\)$"
-              (servant-make-elnode-handler servant-packages-path)))
-  "Routes for the built-in local server.")
+              (servant-make-elnode-handler (servant-packages-path)))))
 
 
 ;;;; Options
 
 (defun servant/pid (pid-file)
-  "Set path to PID file to PID-FILE."
+  "Set path to PID file to PID-FILE.
+
+Default is servant/tmp/servant.pid."
   (setq servant-pid-file pid-file))
 
 (defun servant/port (port)
-  "Set server port to PORT."
+  "Set server PORT, defaulting to 9191."
   (setq servant-port port))
 
+(defun servant/path (path)
+  "Set PATH as root path when running command."
+  (setq servant-root-path path))
+
 (defun servant/debug ()
-  "Enable debug options."
-  (setq debug-on-error t
-        debug-on-entry t))
+  "Enable debug information."
+  (setq debug-on-error t))
 
 
 ;;;; Commands
@@ -101,23 +108,23 @@
 
 (defun servant/init ()
   "Initialize the project for Servant."
-  (when (f-dir? servant-path)
+  (when (f-dir? (servant-path))
     (error (ansi-red "Directory `servant` already exists.")))
-  (f-mkdir servant-path)
-  (f-mkdir servant-tmp-path)
-  (f-mkdir servant-packages-path)
+  (f-mkdir (servant-path))
+  (f-mkdir (servant-tmp-path))
+  (f-mkdir (servant-packages-path))
   (message "create %s" (ansi-green "servant"))
   (message "create %s" (ansi-green "servant/tmp"))
   (message "create %s" (ansi-green "servant/packages")))
 
 (defun servant/start ()
   "Start server."
-  (unless (f-dir? servant-path)
+  (unless (f-dir? (servant-path))
     (error (ansi-red "Servant not initialized, run `servant init`.")))
   (elnode-start (lambda (httpcon)
-                  (elnode-hostpath-dispatcher httpcon servant-routes))
+                  (elnode-hostpath-dispatcher httpcon (servant-routes)))
                 :port servant-port :host "localhost")
-  (with-temp-file servant-pid-file
+  (with-temp-file (servant-pid-file)
     (insert (format "%s" (emacs-pid))))
   (while t (sit-for 10000)))
 
@@ -126,9 +133,9 @@
   (elnode-stop servant-port))
 
 (defun servant/index ()
-  "Generate index (archive contents) file for all packages."
-  (f-write (servant--create-index-string servant-packages-path)
-           'utf-8 servant-index-file))
+  "Generate index (archive-contents) file for all packages."
+  (f-write (servant--create-index-string (servant-packages-path))
+           'utf-8 (servant-index-file)))
 
 
 ;;;; Commander schema
@@ -140,17 +147,18 @@
 
  (default servant/help)
 
- (option "-h, --help" "Print usage information" servant/help)
- (option "-p <port>, --port <port>" "Use port (default: 9191)" servant/port)
- (option "-P <file>, --pid <file>" "Name to PID file (default: servant.pid)" servant/pid)
- (option "--debug" "Enable debug information" servant/debug)
- (option "--index" "Index before running command" servant/index)
+ (option "-h, --help" servant/help)
+ (option "-p <port>, --port <port>" servant/port)
+ (option "-P <file>, --pid <file>" servant/pid)
+ (option "--debug" servant/debug)
+ (option "--index" servant/index)
+ (option "--path <path>" servant/path)
 
- (command "init" "Initialize servant" servant/init)
- (command "index" "Build package index" servant/index)
- (command "help" "Print usage information" servant/help)
- (command "start" "Start server" servant/start)
- (command "stop" "Stop server" servant/stop))
+ (command "init" servant/init)
+ (command "index" servant/index)
+ (command "help" servant/help)
+ (command "start" servant/start)
+ (command "stop" servant/stop))
 
 (provide 'servant-cli)
 
