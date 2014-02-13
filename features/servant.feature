@@ -33,3 +33,7 @@ Feature: Servant
       Loading vc-git...
       """
 
+  Scenario: Index
+    When I run servant "init"
+    And I run servant "index"
+    Then the file "servant/packages/archive-contents" should exist

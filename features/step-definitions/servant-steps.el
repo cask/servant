@@ -31,5 +31,9 @@
     (should (s-contains? output servant-test/stderr))))
 
 (Then "^the directory \"\\([^\"]+\\)\" should exist$"
+  (lambda (directory)
+    (should (f-dir? (f-expand directory default-directory)))))
+
+(Then "^the file \"\\([^\"]+\\)\" should exist$"
   (lambda (file)
-    (should (f-dir? (f-expand file default-directory)))))
+    (should (f-file? (f-expand file default-directory)))))
