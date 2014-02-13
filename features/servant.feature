@@ -33,7 +33,12 @@ Feature: Servant
       Loading vc-git...
       """
 
-  Scenario: Index
+  Scenario Outline: Index
     When I run servant "init"
-    And I run servant "index"
+    And I run servant "<arg>"
     Then the file "servant/packages/archive-contents" should exist
+
+    Examples:
+      | arg     |
+      | index   |
+      | --index |
