@@ -140,17 +140,17 @@
 
  (default servant/help)
 
- (option "-h, --help" "Print usage information" servant/help)
- (option "-p <port>, --port <port>" "Use port (default: 9191)" servant/port)
- (option "-P <file>, --pid <file>" "Name to PID file (default: servant.pid)" servant/pid)
- (option "--debug" "Enable debug information" servant/debug)
- (option "--index" "Index before running command" servant/index)
+ (option "-h, --help" servant/help)
+ (option "-p <port>, --port <port>" servant/port)
+ (option "-P <file>, --pid <file>" servant/pid)
+ (option "--debug" servant/debug)
+ (option "--index" servant/index)
 
- (command "init" "Initialize servant" servant/init)
- (command "index" "Build package index" servant/index)
- (command "help" "Print usage information" servant/help)
- (command "start" "Start server" servant/start)
- (command "stop" "Stop server" servant/stop))
+ (command "init" servant/init)
+ (command "index" servant/index)
+ (command "help" servant/help)
+ (command "start" servant/start)
+ (command "stop" servant/stop))
 
 (provide 'servant-cli)
 
