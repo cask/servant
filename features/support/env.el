@@ -27,5 +27,5 @@
 
  (when (f-dir? servant-test/sandbox-path)
    (f-delete servant-test/sandbox-path 'force))
- (f-mkdir servant-test/sandbox-path)
+ (f-mkdir servant-test/sandbox-path "tmp")
  (setq default-directory (f-slash servant-test/sandbox-path)))

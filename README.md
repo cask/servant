@@ -37,6 +37,13 @@ Then, start the server:
 $ cask exec servant start
 ```
 
+Each command described above can change the target directory with the
+`--path` option.
+
+```sh
+$ cask exec servant index --path /path/to
+```
+
 For more information:
 
 ```sh

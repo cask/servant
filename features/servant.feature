@@ -42,3 +42,10 @@ Feature: Servant
       | arg     |
       | index   |
       | --index |
+
+  Scenario: Path
+    When I run servant "init --path tmp"
+    Then the directory "tmp/servant/tmp" should exist
+    And the directory "tmp/servant/packages" should exist
+    When I run servant "index --path tmp"
+    Then the file "tmp/servant/packages/archive-contents" should exist
