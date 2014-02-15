@@ -32,8 +32,8 @@
 
 (Then "^the directory \"\\([^\"]+\\)\" should exist$"
   (lambda (directory)
-    (should (f-dir? (f-expand directory default-directory)))))
+    (should (f-dir? (f-expand directory servant-test/sandbox-path)))))
 
 (Then "^the file \"\\([^\"]+\\)\" should exist$"
   (lambda (file)
-    (should (f-file? (f-expand file default-directory)))))
+    (should (f-file? (f-expand file servant-test/sandbox-path)))))
