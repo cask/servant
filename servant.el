@@ -7,7 +7,7 @@
 ;;     Sebastian Wiesner <lunaryorn@gmail.com>
 ;; Maintainer: Johan Andersson <johan.rejeep@gmail.com>
 ;;     Sebastian Wiesner <lunaryorn@gmail.com>
-;; Version: 0.1.0
+;; Version: 0.2.0
 ;; Keywords: elpa, server
 ;; URL: http://github.com/rejeep/servant.el
 ;; Package-Requires: ((s "1.8.0") (dash "2.2.0") (f "0.11.0") (ansi "0.3.0") (commander "0.5.0") (elnode "0.9.9.7.6") (epl "0.2") (shut-up "0.2.1"))
