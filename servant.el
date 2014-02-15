@@ -90,7 +90,7 @@ packages, or nil, if FILE-NAME is not a package."
   "Generate a package index for DIRECTORY as string."
   (let ((print-level nil)
         (print-length nil))
-    (concat "\n" (prin1-to-string (servant-create-index directory)))))
+    (concat "\n" (prin1-to-string (servant-create-index directory)) "\n")))
 
 
 ;;;; Generic elnode handlers
