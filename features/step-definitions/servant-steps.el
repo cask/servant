@@ -37,3 +37,11 @@
 (Then "^the file \"\\([^\"]+\\)\" should exist$"
   (lambda (file)
     (should (f-file? (f-expand file servant-test/sandbox-path)))))
+
+(Then "^the file \"\\([^\"]+\\)\" should not exist$"
+  (lambda (file)
+    (should-not (f-file? (f-expand file servant-test/sandbox-path)))))
+
+(When "^I create directory \"\\([^\"]+\\)\"$"
+  (lambda (directory)
+    (f-mkdir (f-expand directory servant-test/sandbox-path))))

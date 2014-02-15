@@ -53,6 +53,9 @@
 (defvar servant-root-path default-directory
   "Run commands with this as root.")
 
+(defvar servant-packages-path nil
+  "Path to packages directory.")
+
 (defun servant-path ()
   "Path to main Servant directory."
   (f-expand "servant" servant-root-path))
@@ -63,7 +66,7 @@
 
 (defun servant-packages-path ()
   "Path to package directory."
-  (f-expand "packages" (servant-path)))
+  (or servant-packages-path (f-expand "packages" (servant-path))))
 
 (defun servant-index-file ()
   "Path to index (archive content) file."
@@ -94,6 +97,16 @@ Default is servant/tmp/servant.pid."
 (defun servant/path (path)
   "Set PATH as root path when running command."
   (setq servant-root-path path))
+
+(defun servant/packages-path (packages-path)
+  "Set path to packages directory to PACKAGES-PATH.
+
+If PACKAGES-PATH is relative, it will be relative
+  `default-directory' or the `--path' option is specified."
+  (setq servant-packages-path
+        (if (f-absolute? packages-path)
+            packages-path
+          (f-expand packages-path servant-root-path))))
 
 (defun servant/debug ()
   "Enable debug information."
@@ -153,6 +166,7 @@ Default is servant/tmp/servant.pid."
  (option "--debug" servant/debug)
  (option "--index" servant/index)
  (option "--path <path>" servant/path)
+ (option "--packages-path <packages-path>" servant/packages-path)
 
  (command "init" servant/init)
  (command "index" servant/index)
