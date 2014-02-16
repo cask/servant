@@ -56,3 +56,32 @@ Feature: Servant
     And I run servant "index --packages-path servant/awesome-packages"
     Then the file "servant/packages/archive-contents" should not exist
     But the file "servant/awesome-packages/archive-contents" should exist
+
+  Scenario: Server
+    Given I run servant "init"
+    And I create file "servant/packages/foo-0.0.1.el" with contents:
+      """
+      ;;; foo.el --- Foo -*- lexical-binding: t; -*-
+
+      ;; Version: 0.0.1
+
+      (provide 'foo)
+
+      ;;; foo.el ends here
+      """
+    When I run servant "start --index"
+    Then requesting "/packages/foo-0.0.1.el" should respond with:
+      """
+      ;;; foo.el --- Foo -*- lexical-binding: t; -*-
+
+      ;; Version: 0.0.1
+
+      (provide 'foo)
+
+      ;;; foo.el ends here
+      """
+    And requesting "/packages/archive-contents" should respond with:
+      """
+
+      (1 (foo . [(0 0 1) nil "Foo" single]))
+      """
