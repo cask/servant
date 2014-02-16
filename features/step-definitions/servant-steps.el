@@ -45,3 +45,15 @@
 (When "^I create directory \"\\([^\"]+\\)\"$"
   (lambda (directory)
     (f-mkdir (f-expand directory servant-test/sandbox-path))))
+
+(When "^I create file \"\\([^\"]+\\)\" with contents:$"
+  (lambda (file contents)
+    (f-write-text contents 'utf-8 (f-expand file servant-test/sandbox-path))))
+
+(Then "^requesting \"\\([^\"]+\\)\" should respond with:$"
+  (lambda (path contents)
+    (let ((buffer (url-retrieve-synchronously (concat "http://127.0.0.1:9191" path))))
+      (if buffer
+          (with-current-buffer buffer
+            (should (s-contains? contents (buffer-string))))
+        (error "Requesting %s failed" path)))))
