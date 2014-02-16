@@ -139,7 +139,7 @@ If PACKAGES-PATH is relative, it will be relative
                 :port servant-port :host "localhost")
   (with-temp-file (servant-pid-file)
     (insert (format "%s" (emacs-pid))))
-  (while t (sit-for 10000)))
+  (while t (sit-for 1)))
 
 (defun servant/stop ()
   "Stop server."
