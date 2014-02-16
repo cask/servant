@@ -39,6 +39,9 @@
 (require 'commander)
 (require 'ansi)
 (require 'shut-up)
+(require 'web-server)
+(require 'eieio)
+(require 'cl)
 
 (shut-up-silence-emacs)
 
@@ -75,11 +78,6 @@
 (defun servant-pid-file ()
   "Path to server PID file."
   (or servant-pid-file (f-expand "servant.pid" (servant-tmp-path))))
-
-(defun servant-routes ()
-  "Routes for the built-in local server."
-  (list (cons "^.*//packages/\\(.*\\)$"
-              (servant-make-elnode-handler (servant-packages-path)))))
 
 
 ;;;; Options
@@ -132,18 +130,13 @@ If PACKAGES-PATH is relative, it will be relative
 
 (defun servant/start ()
   "Start server."
-  (unless (f-dir? (servant-path))
-    (error (ansi-red "Servant not initialized, run `servant init`.")))
-  (elnode-start (lambda (httpcon)
-                  (elnode-hostpath-dispatcher httpcon (servant-routes)))
-                :port servant-port :host "localhost")
-  (with-temp-file (servant-pid-file)
-    (insert (format "%s" (emacs-pid))))
-  (while t (sit-for 1)))
+  (servant-start)
+  (while t
+    (sit-for 1)))
 
 (defun servant/stop ()
   "Stop server."
-  (elnode-stop servant-port))
+  (servant-stop))
 
 (defun servant/index ()
   "Generate index (archive-contents) file for all packages."
