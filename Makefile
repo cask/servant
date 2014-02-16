@@ -3,7 +3,12 @@ CASK ?= cask
 
 all: test
 
-test:
+test: unit ecukes
+
+unit:
 	${CASK} exec ert-runner
 
-.PHONY:	all test
+ecukes:
+	${CASK} exec ecukes
+
+.PHONY:	all unit ecukes test
