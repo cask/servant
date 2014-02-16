@@ -92,7 +92,7 @@ Default is servant/tmp/servant.pid."
 
 (defun servant/port (port)
   "Set server PORT, defaulting to 9191."
-  (setq servant-port port))
+  (setq servant-port (string-to-number port)))
 
 (defun servant/path (path)
   "Set PATH as root path when running command."
