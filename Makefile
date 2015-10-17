@@ -9,6 +9,6 @@ unit:
 	${CASK} exec ert-runner
 
 ecukes:
-	${CASK} exec ecukes
+	${CASK} exec ecukes --reporter spec
 
 .PHONY:	all unit ecukes test
